@@ -24,6 +24,9 @@ class MultipleToggleDebug2
 public:
     MultipleToggleDebug2(){
     }
+    ~MultipleToggleDebug2(){
+        if(m_shouldStop==false) delete _db;
+    }
     MultipleToggleDebug2& start(){
         step=0;
         codePos="";
@@ -44,6 +47,7 @@ public:
                 m_shouldStop=true;
             }else {
                 m_shouldStop=false;
+                 _db =  new QDebug(qDebug());
             }
         }
         step+=1;
@@ -52,9 +56,9 @@ public:
             return *this;
         }
         if(step==2){
-            qDebug().noquote()<< "\033[31m"+QVariant( value).toString() +"\033[0m "+ codePos+"";
+            _db->noquote()<< "\033[31m"+QVariant( value).toString() +"\033[0m "+ codePos+"\n";
         }else{
-            qDebug().noquote()<<value;
+           _db->noquote()<<value;
         }
         return *this;
     }
@@ -67,6 +71,7 @@ private:
     bool m_shouldStop;
     int  step=0;
     QString codePos="";
+    QDebug * _db;
 };
 
 #endif // MULTIPLETOGGLEDEBUG_H
