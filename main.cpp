@@ -6,8 +6,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    debugtoggle<<"1"<< "this line will output";
-    debugtoggle<<"6"<< "this line will not output";
+    dbg<<"loadData"<< "this line will not output";
+    dbg<<"debugtoolboxcode"<< "this line will output";
 
     //MainWindow w;
     //w.show();

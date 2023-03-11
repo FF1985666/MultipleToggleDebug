@@ -1,57 +1,72 @@
-﻿#ifndef MULTIPLETOGGLEDEBUG_H
+﻿
+
+
+//Multiple toggle switches for QDebug.
+
+#ifndef MULTIPLETOGGLEDEBUG_H
 #define MULTIPLETOGGLEDEBUG_H
 #include <QString>
 #include <QVariant>
 #include <QDebug>
 
-#define debugtoggle MultipleToggleDebug().start()
-//#define debugmy Singleton<MyDebug>::Instance()->start()
 
-class MultipleToggleDebug : public QDebug
+#define DEBUG_POS QString("_________________________FUN: ") + __FUNCTION__ + " LINE: " + QString::number(__LINE__)
+
+#define TOGGLE_BLACKLIST \
+"loadData," \
+//"debugtoolboxcode,"
+
+
+#define dbg MultipleToggleDebug2().start()<<DEBUG_POS
+
+class MultipleToggleDebug2
 {
 public:
-
-    MultipleToggleDebug() : QDebug(QtDebugMsg), m_shouldStop(false) {} //MyDebug(QtMsgType type) : QDebug(type), m_shouldStop(false) {}
-
-    MultipleToggleDebug& start(){
+    MultipleToggleDebug2(){
+    }
+    MultipleToggleDebug2& start(){
         step=0;
-        //qDebug().noquote()<<"aaa0";
+        codePos="";
         return *this;
     }
     template<typename T>
-    MultipleToggleDebug &operator<<(const T &value)
+    MultipleToggleDebug2 &operator<<(const T &value)
     {
-        //qDebug().noquote()<<"aaa-1";
         QString msg=qvariant_cast<QString>(QVariant(value));
-        if(step==0 ){
+        if(step==0){
+          codePos=msg;
+          step+=1;
+          return *this;
+        }
+        if(step==1 ){
             if( list.contains(msg))
             {
-                m_shouldStop=false;
-            }else {
                 m_shouldStop=true;
+            }else {
+                m_shouldStop=false;
             }
-            step=1;
         }
+        step+=1;
 
         if (m_shouldStop) {
-            //qDebug().noquote()<<"aaa";
             return *this;
         }
-
-        //QDebug::operator<<(value);
-        this->noquote()<<value;
-        //qDebug().noquote()<<msg;
+        if(step==2){
+            qDebug().noquote()<< "\033[31m"+QVariant( value).toString() +"\033[0m "+ codePos+"";
+        }else{
+            qDebug().noquote()<<value;
+        }
         return *this;
     }
 
 private:
 
     QStringList list= QString(
-                "1,"
-                "2,"
-                "3,"
+                TOGGLE_BLACKLIST
                 ).split(",");
     bool m_shouldStop;
     int  step=0;
+    QString codePos="";
 };
+
 #endif // MULTIPLETOGGLEDEBUG_H
